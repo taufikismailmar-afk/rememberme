@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>RememberMe.</title>
+<meta name="description" content="Aplikasi manajemen tugas dan file pribadi">
+<meta name="theme-color" id="meta-theme-color" content="#0a0a10">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RememberMe">
+<link rel="manifest" href="manifest.json">
+<!-- iOS icons -->
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --font: 'Poppins', sans-serif;
+    --radius-sm: 7px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 18px;
+    --radius-pill: 99px;
+    --transition: all .2s ease;
+  }
+
+  [data-theme="dark"] {
+    --bg:         #0a0a10;
+    --bg2:        #0d0d18;
+    --bg3:        #11111c;
+    --bg4:        #171722;
+    --bg5:        #1a1a2e;
+    --border:     #1a1a2e;
+    --border2:    #2d2d44;
+    --text:       #e2e8f0;
+    --text2:      #94a3b8;
+    --text3:      #64748b;
+    --text4:      #374151;
+    --text5:      #2d2d44;
+    --header-bg: rgba(10,10,16,0.9);
+    --stat-bg:   #0c0c16;
+    --input-bg:  #1a1a2e;
+    --modal-bg:  #12121e;
+    --modal-border: #1e1e30;
+    --card-bg:   #11111c;
+    --entry-bg:  #171722;
+    --icon-btn-color: #1e1e2e;
+    --export-bg: #14141f;
+    --tab-bg:    #11111c;
+    --add-mode-border: #1e1e2e;
+    --add-mode-color:  #374151;
+    --empty-color: #2d2d44;
+    --toggle-track: #1e1e2e;
+    --toggle-bg: #13131f;
+    --toggle-border: #1e1e2e;
+    --bg-gradient: radial-gradient(ellipse 70% 50% at 10% -10%, #1e1b4b1a 0%, transparent 55%),
+                   radial-gradient(ellipse 50% 40% at 90% 110%, #16303a1a 0%, transparent 55%);
+  }
+
+  [data-theme="light"] {
+    --bg:         #f0f4f8;
+    --bg2:        #e8edf3;
+    --bg3:        #ffffff;
+    --bg4:        #f5f7fa;
+    --bg5:        #e2e8f0;
+    --border:     #dde3ec;
+    --border2:    #c8d0db;
+    --text:       #1a202c;
+    --text2:      #4a5568;
+    --text3:      #718096;
+    --text4:      #a0aec0;
+    --text5:      #cbd5e0;
+    --header-bg: rgba(240,244,248,0.92);
+    --stat-bg:   #eaeef3;
+    --input-bg:  #ffffff;
+    --modal-bg:  #ffffff;
+    --modal-border: #dde3ec;
+    --card-bg:   #ffffff;
+    --entry-bg:  #f5f7fa;
+    --icon-btn-color: #c8d0db;
+    --export-bg: #ffffff;
+    --tab-bg:    #e2e8f0;
+    --add-mode-border: #c8d0db;
+    --add-mode-color:  #718096;
+    --empty-color: #c8d0db;
+    --toggle-track: #dde3ec;
+    --toggle-bg: #f0f4f8;
+    --toggle-border: #dde3ec;
+    --bg-gradient: radial-gradient(ellipse 70% 50% at 10% -10%, #6366f10a 0%, transparent 55%),
+                   radial-gradient(ellipse 50% 40% at 90% 110%, #06b6d40a 0%, transparent 55%);
+  }
+
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font); }
+
+  button { font-family: var(--font); cursor: pointer; }
+  input  { font-family: var(--font); }
+
+  #app { display: flex; min-height: 100vh; background: var(--bg); color: var(--text); position: relative; }
+
+  /* BG */
+  .bg-grad {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background: var(--bg-gradient);
+  }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    width: 220px; flex-shrink: 0; background: var(--bg2);
+    border-right: 1px solid var(--border); display: flex; flex-direction: column;
+    transition: width .25s ease; overflow: hidden; z-index: 10;
+    position: sticky; top: 0; height: 100vh;
+  }
+  #sidebar.collapsed { width: 64px; }
+
+  .sidebar-logo {
+    padding: 18px 16px 14px; display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo-icon {
+    width: 32px; height: 32px; border-radius: 9px;
+    background: linear-gradient(135deg,#6366f1,#8b5cf6);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .logo-text {
+    font-weight: 800; font-size: 15px; letter-spacing: -0.5px; color: var(--text); white-space: nowrap;
+  }
+  .logo-text span { color: #6366f1; }
+
+  .sidebar-toggle {
+    margin: 10px 12px 0; padding: 7px; background: var(--toggle-bg);
+    border: 1px solid var(--toggle-border); border-radius: 8px; cursor: pointer;
+    color: var(--text3); display: flex; align-items: center; justify-content: flex-end;
+    transition: var(--transition);
+  }
+  #sidebar.collapsed .sidebar-toggle { justify-content: center; }
+
+  .sidebar-label {
+    padding: 16px 16px 6px; font-size: 10px; letter-spacing: 1.5px;
+    color: var(--text4); font-weight: 700; text-transform: uppercase; white-space: nowrap;
+  }
+
+  .modes-list {
+    flex: 1; overflow-y: auto; padding: 6px 10px; display: flex;
+    flex-direction: column; gap: 4px;
+  }
+
+  .mode-item { position: relative; }
+  .mode-btn {
+    width: 100%; display: flex; align-items: center; gap: 10px; padding: 9px 10px;
+    background: none; border: 1px solid transparent; border-radius: 10px;
+    cursor: pointer; transition: var(--transition); position: relative; text-align: left;
+  }
+  #sidebar.collapsed .mode-btn { padding: 9px 0; justify-content: center; }
+  .mode-emoji { font-size: 18px; flex-shrink: 0; }
+  .mode-label-text {
+    flex: 1; font-size: 13px; font-weight: 500; color: var(--text3);
+    text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .mode-count {
+    font-size: 10px; padding: 2px 6px; border-radius: 99px;
+    background: var(--bg5); color: var(--text4); flex-shrink: 0;
+  }
+  .mode-active-bar {
+    position: absolute; left: 0; top: 20%; height: 60%; width: 3px;
+    border-radius: 99px; display: none;
+  }
+  .mode-btn.active .mode-active-bar { display: block; }
+  .mode-delete {
+    position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer; color: var(--text5);
+    padding: 3px; border-radius: 4px; display: flex; transition: color .15s;
+  }
+  .mode-delete:hover { color: #ef4444; }
+  #sidebar.collapsed .mode-delete { display: none; }
+  #sidebar.collapsed .mode-label-text,
+  #sidebar.collapsed .mode-count,
+  #sidebar.collapsed .sidebar-label { display: none; }
+
+  .add-mode-btn {
+    display: flex; align-items: center; justify-content: flex-start; gap: 8px;
+    padding: 8px 10px; background: none; border: 1px dashed var(--add-mode-border);
+    border-radius: 10px; cursor: pointer; color: var(--add-mode-color);
+    font-size: 12px; margin-top: 4px; transition: var(--transition);
+  }
+  #sidebar.collapsed .add-mode-btn { justify-content: center; padding: 8px 0; }
+  #sidebar.collapsed .add-mode-btn span:last-child { display: none; }
+  .add-mode-btn:hover { border-color: #6366f1; color: #6366f1; }
+
+  /* Sidebar bottom */
+  .sidebar-bottom {
+    padding: 12px 10px; border-top: 1px solid var(--border);
+  }
+  .sidebar-bottom-inner {
+    display: flex; align-items: center; gap: 10px; padding: 8px 10px;
+  }
+  #sidebar.collapsed .sidebar-bottom-inner { justify-content: center; }
+  .sidebar-mode-avatar {
+    width: 28px; height: 28px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 14px;
+  }
+  .sidebar-mode-name {
+    font-size: 12px; color: var(--text3); white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+  #sidebar.collapsed .sidebar-mode-name { display: none; }
+
+  /* ── MAIN ── */
+  #main { flex: 1; display: flex; flex-direction: column; min-width: 0; position: relative; z-index: 1; }
+
+  /* Header */
+  #header {
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    background: var(--header-bg); border-bottom: 1px solid var(--border); padding: 0 28px;
+  }
+  .header-inner {
+    display: flex; align-items: center; justify-content: space-between; height: 60px; gap: 16px;
+  }
+  .mode-badge {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 14px; border-radius: 99px;
+  }
+  .mode-badge-emoji { font-size: 16px; }
+  .mode-badge-label { font-size: 13px; font-weight: 700; }
+
+  .tabs {
+    display: flex; gap: 3px; background: var(--tab-bg); border-radius: 12px; padding: 4px;
+  }
+  .tab-btn {
+    padding: 7px 18px; border-radius: 8px; border: none; cursor: pointer;
+    font-size: 13px; font-weight: 600; background: transparent; color: var(--text3);
+    transition: var(--transition); font-family: var(--font);
+  }
+  .tab-btn.active {
+    background: linear-gradient(135deg,#6366f1,#8b5cf6); color: #fff;
+  }
+
+  .header-right { display: flex; align-items: center; gap: 10px; }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    display: flex; align-items: center; justify-content: center;
+    width: 36px; height: 36px; border-radius: 9px;
+    background: var(--export-bg); border: 1px solid var(--modal-border);
+    color: var(--text3); cursor: pointer; font-size: 16px; transition: var(--transition);
+    flex-shrink: 0;
+  }
+  .theme-toggle:hover { color: var(--text); border-color: var(--border2); }
+
+  /* Export */
+  .export-wrap { position: relative; }
+  .export-btn {
+    display: flex; align-items: center; gap: 7px; padding: 7px 14px; border-radius: 9px;
+    background: var(--export-bg); border: 1px solid var(--modal-border);
+    color: var(--text3); cursor: pointer; font-size: 13px; font-weight: 600;
+    font-family: var(--font); transition: var(--transition);
+  }
+  .export-dropdown {
+    display: none; position: absolute; right: 0; top: calc(100% + 6px);
+    background: var(--export-bg); border: 1px solid var(--modal-border);
+    border-radius: 12px; padding: 6px; min-width: 190px; z-index: 100;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  }
+  .export-dropdown.open { display: block; }
+  .export-item {
+    display: block; width: 100%; padding: 9px 13px; background: none; border: none;
+    color: var(--text2); cursor: pointer; text-align: left; font-size: 12px;
+    border-radius: 7px; transition: background .15s; font-family: var(--font);
+  }
+  .export-item:hover { background: var(--bg5); }
+
+  /* Stats bar */
+  #stats-bar {
+    background: var(--stat-bg); border-bottom: 1px solid var(--border);
+    padding: 10px 28px;
+  }
+  .stats-inner { display: flex; gap: 28px; align-items: center; }
+  .stat { display: flex; align-items: center; gap: 7px; }
+  .stat-icon { font-size: 15px; }
+  .stat-label { font-size: 10px; color: var(--text4); line-height: 1; font-weight: 500; }
+  .stat-value { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.4; }
+  .progress-wrap { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .progress-bar-track { width: 100px; height: 5px; background: var(--bg5); border-radius: 99px; }
+  .progress-bar-fill { height: 100%; border-radius: 99px; transition: width .5s; }
+  .progress-pct { font-size: 11px; color: var(--text4); font-weight: 500; }
+
+  /* ── CONTENT ── */
+  #content { flex: 1; padding: 28px; }
+
+  .section-header {
+    display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 22px;
+  }
+  .section-title { font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+  .section-sub { font-size: 12px; color: var(--text4); margin-top: 3px; }
+  .add-card-btn {
+    padding: 9px 18px; border: none; border-radius: 9px; color: #fff;
+    cursor: pointer; font-size: 13px; font-weight: 700; display: flex;
+    align-items: center; gap: 5px; font-family: var(--font); transition: var(--transition);
+  }
+
+  /* Grid */
+  .cards-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px;
+  }
+  .cards-grid.remember { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+
+  /* Empty state */
+  .empty-state { grid-column: 1/-1; text-align: center; padding: 50px 20px; color: var(--empty-color); }
+  .empty-icon { font-size: 44px; margin-bottom: 10px; }
+  .empty-text { font-size: 13px; font-weight: 500; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--card-bg); border-radius: 16px; overflow: hidden;
+    border: 1px solid var(--border); transition: transform .2s, box-shadow .2s;
+  }
+  .card:hover { transform: translateY(-2px); }
+  .card-accent { height: 4px; }
+  .card-body { padding: 18px; }
+  .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .card-title-wrap { flex: 1; min-width: 0; }
+  .card-title { font-size: 14px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; margin-bottom: 4px; }
+  .card-mode-badge {
+    font-size: 10px; padding: 2px 7px; border-radius: 99px;
+    display: inline-flex; align-items: center; gap: 4px; font-weight: 600;
+  }
+  .card-actions { display: flex; gap: 4px; margin-left: 8px; }
+  .icon-btn {
+    background: none; border: none; cursor: pointer; color: var(--icon-btn-color);
+    padding: 5px; border-radius: 6px; display: flex; align-items: center;
+    justify-content: center; transition: color .15s, background .15s;
+  }
+  .icon-btn:hover { color: #6366f1; background: var(--bg5); }
+  .icon-btn.danger:hover { color: #ef4444; background: var(--bg5); }
+
+  /* Progress */
+  .card-progress { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .progress-track { flex: 1; height: 4px; background: var(--bg5); border-radius: 99px; }
+  .progress-fill { height: 100%; border-radius: 99px; transition: width .4s; }
+  .progress-count { font-size: 10px; color: var(--text4); font-weight: 500; }
+
+  /* Items */
+  .items-list { display: flex; flex-direction: column; gap: 5px; }
+  .task-item {
+    display: flex; align-items: center; gap: 8px; padding: 7px 9px;
+    border-radius: 7px; transition: background .2s;
+  }
+  .task-item.done { background: #0c180c; }
+  [data-theme="light"] .task-item.done { background: #f0faf0; }
+  .task-item.todo { background: var(--bg4); }
+  .task-num { font-size: 10px; color: var(--text5); min-width: 16px; text-align: right; font-weight: 500; }
+  .task-check {
+    width: 18px; height: 18px; border-radius: 5px; border: 2px solid var(--border2);
+    background: transparent; cursor: pointer; display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0; transition: all .2s;
+  }
+  .task-check.checked { border-color: #22c55e; background: #22c55e; }
+  .task-text {
+    flex: 1; font-size: 12px; color: var(--text2); transition: all .2s; font-weight: 500;
+  }
+  .task-text.done { color: var(--text4); text-decoration: line-through; }
+
+  /* Add item input */
+  .add-item-wrap { margin-top: 8px; }
+  .add-item-row { display: flex; gap: 5px; }
+  .add-item-input {
+    flex: 1; background: var(--bg5); border: 1px solid var(--border2); border-radius: 7px;
+    padding: 7px 10px; color: var(--text); font-size: 12px; outline: none; font-family: var(--font);
+  }
+  .add-item-input:focus { border-color: #6366f1; }
+  .add-item-submit {
+    padding: 7px 11px; border: none; border-radius: 7px; color: #fff;
+    cursor: pointer; font-size: 13px; font-weight: 700; font-family: var(--font);
+  }
+  .add-task-btn {
+    width: 100%; padding: 7px; background: none; border: 1px dashed var(--border);
+    border-radius: 7px; color: var(--text5); cursor: pointer; font-size: 11px;
+    transition: var(--transition); font-family: var(--font); font-weight: 600;
+  }
+
+  /* Remember entries */
+  .entries-list { display: flex; flex-direction: column; gap: 5px; }
+  .entry-item {
+    padding: 9px 11px; border-radius: 8px; background: var(--entry-bg); border: 1px solid var(--border);
+  }
+  .entry-row { display: flex; align-items: center; gap: 7px; }
+  .entry-icon-wrap { font-size: 14px; }
+  .entry-info { flex: 1; min-width: 0; }
+  .entry-name { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .entry-path { font-size: 10px; color: var(--text4); font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .entry-type-badge {
+    font-size: 9px; padding: 2px 7px; border-radius: 99px; flex-shrink: 0; font-weight: 700;
+  }
+  .entry-delete {
+    background: none; border: none; cursor: pointer; color: var(--text5);
+    padding: 2px; border-radius: 4px; display: flex; transition: color .15s;
+  }
+  .entry-delete:hover { color: #ef4444; }
+
+  /* Add entry form */
+  .add-entry-form {
+    margin-top: 8px; background: var(--bg4); border-radius: 9px; padding: 10px;
+    display: flex; flex-direction: column; gap: 7px;
+  }
+  .add-entry-input {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 7px;
+    padding: 6px 9px; color: var(--text); font-size: 12px; outline: none;
+    font-family: var(--font); width: 100%;
+  }
+  .add-entry-input:focus { border-color: #6366f1; }
+  .add-entry-input.mono { font-size: 11px; font-family: monospace; }
+  .type-btns { display: flex; gap: 5px; }
+  .type-btn {
+    flex: 1; padding: 5px; border-radius: 6px; border: 1px solid var(--border);
+    background: none; color: var(--text4); cursor: pointer; font-size: 11px;
+    font-weight: 600; font-family: var(--font); transition: var(--transition);
+  }
+  .type-btn.active-type { /* set dynamically */ }
+  .entry-form-btns { display: flex; gap: 5px; }
+  .entry-save-btn {
+    flex: 1; padding: 6px; border: none; border-radius: 7px; color: #fff;
+    cursor: pointer; font-size: 12px; font-weight: 700; font-family: var(--font);
+  }
+  .entry-cancel-btn {
+    flex: 1; padding: 6px; background: var(--bg5); border: none; border-radius: 7px;
+    color: var(--text3); cursor: pointer; font-size: 12px; font-family: var(--font);
+  }
+  .add-entry-btn {
+    margin-top: 8px; width: 100%; padding: 7px; background: none;
+    border: 1px dashed var(--border); border-radius: 7px; color: var(--text5);
+    cursor: pointer; font-size: 11px; transition: var(--transition);
+    font-family: var(--font); font-weight: 600;
+  }
+
+  /* ── MODAL ── */
+  #modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 300;
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  #modal-overlay.open { display: flex; }
+  [data-theme="light"] #modal-overlay { background: rgba(0,0,0,0.4); }
+
+  .modal-box {
+    background: var(--modal-bg); border: 1px solid var(--modal-border); border-radius: 20px;
+    padding: 26px; width: 100%; max-width: 460px; max-height: 85vh; overflow-y: auto;
+  }
+  .modal-box.narrow { max-width: 380px; }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; }
+  .modal-title { font-size: 16px; font-weight: 800; color: var(--text); }
+  .modal-close {
+    background: none; border: none; cursor: pointer; color: var(--text3);
+    padding: 4px; display: flex; transition: color .15s;
+  }
+  .modal-close:hover { color: var(--text); }
+  .modal-fields { display: flex; flex-direction: column; gap: 14px; }
+  .field-label { font-size: 11px; color: var(--text3); margin-bottom: 5px; display: block; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .field-input {
+    width: 100%; background: var(--input-bg); border: 1px solid var(--border2);
+    border-radius: 9px; padding: 9px 13px; color: var(--text); font-size: 14px;
+    outline: none; font-family: var(--font); transition: border-color .15s;
+  }
+  .field-input:focus { border-color: #6366f1; }
+  .color-picker { display: flex; gap: 6px; flex-wrap: wrap; }
+  .color-swatch {
+    width: 26px; height: 26px; border-radius: 7px; cursor: pointer;
+    border: 3px solid transparent; transition: border-color .15s;
+  }
+  .color-swatch.selected { border-color: #fff; }
+  [data-theme="light"] .color-swatch.selected { border-color: #1a202c; }
+  .emoji-picker { display: flex; gap: 6px; flex-wrap: wrap; }
+  .emoji-btn {
+    width: 36px; height: 36px; border-radius: 8px; font-size: 18px;
+    border: 2px solid transparent; background: var(--bg5); cursor: pointer;
+    transition: var(--transition); display: flex; align-items: center; justify-content: center;
+  }
+  .emoji-btn.selected { border-color: #6366f1; background: #6366f122; }
+  .mode-selector { display: flex; gap: 6px; flex-wrap: wrap; }
+  .mode-sel-btn {
+    display: flex; align-items: center; gap: 6px; padding: 6px 12px;
+    border-radius: 99px; cursor: pointer; font-size: 12px; font-weight: 600;
+    border: 1.5px solid var(--border); background: var(--bg5); color: var(--text4);
+    transition: var(--transition); font-family: var(--font);
+  }
+  .modal-footer { margin-top: 22px; display: flex; gap: 8px; }
+  .cancel-btn {
+    flex: 1; padding: 10px; background: var(--bg5); border: none; border-radius: 9px;
+    color: var(--text4); cursor: pointer; font-size: 13px; font-family: var(--font); font-weight: 600;
+  }
+  .save-btn {
+    flex: 2; padding: 10px; background: linear-gradient(135deg,#6366f1,#8b5cf6);
+    border: none; border-radius: 9px; color: #fff; cursor: pointer;
+    font-size: 13px; font-weight: 800; font-family: var(--font);
+  }
+
+  /* SVG icons */
+  svg { display: inline-block; vertical-align: middle; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="bg-grad"></div>
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/>
+          <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/>
+        </svg>
+      </div>
+      <span class="logo-text">RememberMe<span>.</span></span>
+    </div>
+    <button class="sidebar-toggle" onclick="toggleSidebar()">
+      <svg id="sidebar-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 18l6-6-6-6"/>
+      </svg>
+    </button>
+    <div class="sidebar-label">WORKSPACE</div>
+    <div class="modes-list" id="modes-list"></div>
+    <div class="sidebar-bottom">
+      <div class="sidebar-bottom-inner" id="sidebar-current-mode"></div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div id="main">
+    <header id="header">
+      <div class="header-inner">
+        <div id="mode-badge-wrap"></div>
+        <div class="tabs">
+          <button class="tab-btn active" onclick="setTab('focus')" id="tab-focus">🎯 Fokus</button>
+          <button class="tab-btn" onclick="setTab('remember')" id="tab-remember">🗂 Remember</button>
+        </div>
+        <div class="header-right">
+          <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn" title="Toggle tema">🌙</button>
+          <div class="export-wrap">
+            <button class="export-btn" onclick="toggleExportMenu()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/>
+              </svg>
+              Export
+            </button>
+            <div class="export-dropdown" id="export-menu">
+              <button class="export-item" onclick="doExportCSV()">📊 Export Excel (.csv)</button>
+              <button class="export-item" onclick="doExportHTML()">📄 Export HTML</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div id="stats-bar">
+      <div class="stats-inner" id="stats-inner"></div>
+    </div>
+
+    <main id="content"></main>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal-box" id="modal-box">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-title"></h2>
+      <button class="modal-close" onclick="closeModal()">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <div id="modal-fields"></div>
+    <div class="modal-footer">
+      <button class="cancel-btn" onclick="closeModal()">Batal</button>
+      <button class="save-btn" onclick="saveModal()" id="modal-save-btn">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Utils ──
+const uid = () => Math.random().toString(36).slice(2, 9);
+const CARD_COLORS = ["#f97316","#ef4444","#eab308","#22c55e","#06b6d4","#3b82f6","#8b5cf6","#ec4899"];
+const MODE_EMOJIS = ["💼","🏠","🎨","📚","💡","🚀","🎯","⚡","🌿","🔥"];
+
+const svgIcon = (paths, size=16, strokeWidth=2) => {
+  const ps = Array.isArray(paths) ? paths : [paths];
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round">${ps.map(p=>`<path d="${p}"/>`).join('')}</svg>`;
+};
+const icons = {
+  plus:    "M12 5v14M5 12h14",
+  trash:   ["M3 6h18","M8 6V4h8v2","M19 6l-1 14H6L5 6"],
+  check:   "M20 6L9 17l-5-5",
+  edit:    ["M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7","M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"],
+  x:       "M18 6L6 18M6 6l12 12",
+  chevron: "M9 18l6-6-6-6",
+};
+
+// ── State ──
+let modes = [
+  { id: "mode-pribadi", label: "Pribadi",  emoji: "🏠", color: "#22c55e" },
+  { id: "mode-kerjaan", label: "Kerjaan",  emoji: "💼", color: "#3b82f6" },
+];
+let activeMode = "mode-kerjaan";
+let currentTab = "focus";
+let sidebarOpen = true;
+
+let focusCards = [
+  {
+    id: uid(), title: "Upload Stok Microstock", color: "#f97316", modeId: "mode-kerjaan",
+    items: [
+      { id: uid(), text: "Riset data & tren pasar",    done: false },
+      { id: uid(), text: "Riset kompetitor",           done: true  },
+      { id: uid(), text: "Riset referensi visual",     done: false },
+      { id: uid(), text: "Produksi konten",            done: false },
+      { id: uid(), text: "Edit & export file",         done: false },
+      { id: uid(), text: "Upload ke platform",         done: false },
+    ]
+  },
+  {
+    id: uid(), title: "Rencana Liburan", color: "#22c55e", modeId: "mode-pribadi",
+    items: [
+      { id: uid(), text: "Cari destinasi",   done: true  },
+      { id: uid(), text: "Pesan tiket",      done: false },
+      { id: uid(), text: "Booking hotel",    done: false },
+    ]
+  }
+];
+let rememberCards = [
+  {
+    id: uid(), title: "Proyek Desain Q2", color: "#8b5cf6", modeId: "mode-kerjaan",
+    entries: [
+      { id: uid(), name: "Brief klien",   path: "D:/Proyek/Klien/Brief_Q2.pdf",  type: "file"   },
+      { id: uid(), name: "Aset Mentah",   path: "D:/Proyek/Klien/Aset/",         type: "folder" },
+      { id: uid(), name: "Revisi Final",  path: "D:/Proyek/Output/Revisi_Final/",type: "folder" },
+    ]
+  },
+  {
+    id: uid(), title: "Dokumen Pribadi", color: "#06b6d4", modeId: "mode-pribadi",
+    entries: [
+      { id: uid(), name: "KTP scan",      path: "D:/Dokumen/Identitas/KTP.pdf",  type: "file"   },
+      { id: uid(), name: "Sertifikat",    path: "D:/Dokumen/Sertifikat/",        type: "folder" },
+    ]
+  }
+];
+
+// Modal state
+let modalType = null;
+let modalData = {};
+
+// Adding state per card
+const addingItems = {};
+const addingEntries = {};
+
+// ── Theme ──
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.dataset.theme === 'dark';
+  html.dataset.theme = isDark ? 'light' : 'dark';
+  document.getElementById('theme-btn').textContent = isDark ? '🌙' : '☀️';
+}
+
+// ── Sidebar ──
+function toggleSidebar() {
+  sidebarOpen = !sidebarOpen;
+  const sb = document.getElementById('sidebar');
+  sb.classList.toggle('collapsed', !sidebarOpen);
+}
+
+// ── Tab ──
+function setTab(t) {
+  currentTab = t;
+  document.getElementById('tab-focus').classList.toggle('active', t==='focus');
+  document.getElementById('tab-remember').classList.toggle('active', t==='remember');
+  renderContent();
+}
+
+// ── Mode ──
+function setActiveMode(id) {
+  activeMode = id;
+  renderAll();
+}
+function deleteMode(id, e) {
+  e.stopPropagation();
+  if (modes.length <= 1) return;
+  modes = modes.filter(m => m.id !== id);
+  if (activeMode === id) activeMode = modes[0].id;
+  renderAll();
+}
+
+// ── Focus CRUD ──
+function toggleItem(cardId, itemId) {
+  const card = focusCards.find(c => c.id === cardId);
+  const item = card.items.find(i => i.id === itemId);
+  item.done = !item.done;
+  renderContent();
+  renderStats();
+}
+function deleteItem(cardId, itemId) {
+  const card = focusCards.find(c => c.id === cardId);
+  card.items = card.items.filter(i => i.id !== itemId);
+  renderContent();
+  renderStats();
+}
+function addItem(cardId, text) {
+  if (!text.trim()) return;
+  const card = focusCards.find(c => c.id === cardId);
+  card.items.push({ id: uid(), text: text.trim(), done: false });
+  addingItems[cardId] = false;
+  renderContent();
+  renderStats();
+}
+function deleteFocusCard(id) {
+  focusCards = focusCards.filter(c => c.id !== id);
+  renderAll();
+}
+
+// ── Remember CRUD ──
+function addEntry(cardId, entry) {
+  const card = rememberCards.find(c => c.id === cardId);
+  card.entries.push({ ...entry, id: uid() });
+  addingEntries[cardId] = false;
+  renderContent();
+  renderStats();
+}
+function deleteEntry(cardId, entryId) {
+  const card = rememberCards.find(c => c.id === cardId);
+  card.entries = card.entries.filter(e => e.id !== entryId);
+  renderContent();
+  renderStats();
+}
+function deleteRemCard(id) {
+  rememberCards = rememberCards.filter(c => c.id !== id);
+  renderAll();
+}
+
+// ── Export ──
+function toggleExportMenu() {
+  document.getElementById('export-menu').classList.toggle('open');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.export-wrap')) {
+    document.getElementById('export-menu').classList.remove('open');
+  }
+});
+function doExportCSV() {
+  const mode = modes.find(m => m.id === activeMode);
+  const cards = currentTab === 'focus'
+    ? focusCards.filter(c => c.modeId === activeMode)
+    : rememberCards.filter(c => c.modeId === activeMode);
+  const rows = [["Kartu","Mode","Item/File","Status/Path"]];
+  cards.forEach(card => {
+    (card.items || card.entries || []).forEach((it, i) => {
+      rows.push([
+        i === 0 ? card.title : "",
+        i === 0 ? mode.label : "",
+        it.text || it.name,
+        it.done !== undefined ? (it.done ? "✓ Selesai" : "Belum") : it.path
+      ]);
+    });
+    rows.push(["","","",""]);
+  });
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href = url; a.download = `rememberme-${mode.label}-${currentTab}.csv`; a.click();
+  URL.revokeObjectURL(url);
+  document.getElementById('export-menu').classList.remove('open');
+}
+function doExportHTML() {
+  const mode = modes.find(m => m.id === activeMode);
+  const cards = currentTab === 'focus'
+    ? focusCards.filter(c => c.modeId === activeMode)
+    : rememberCards.filter(c => c.modeId === activeMode);
+  const isFocus = currentTab === 'focus';
+  const html = `<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><title>RememberMe – ${mode.label}</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>body{font-family:'Poppins',sans-serif;background:#0f0f13;color:#e2e8f0;padding:40px;margin:0}h1{font-size:26px;margin-bottom:8px}
+.sub{color:#64748b;margin:0 0 32px;font-size:14px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+.card{background:#1a1a24;border-radius:14px;padding:20px;border-top:4px solid var(--c)}
+.card h2{font-size:15px;font-weight:700;margin:0 0 14px}.item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #1e1e2e;font-size:13px}
+.item:last-child{border-bottom:none}.dot{width:16px;height:16px;border-radius:5px;flex-shrink:0}.done{background:#22c55e}.todo{background:#374151}
+.path{font-size:11px;color:#475569;font-family:monospace;margin-top:2px;padding-left:26px}
+.tag{font-size:10px;padding:2px 7px;border-radius:99px;background:#1e293b;color:#94a3b8;margin-left:auto}</style></head><body>
+<h1>${isFocus ? "🎯" : "🗂"} ${mode.label} — ${isFocus ? "Fokus" : "Remember Me"}</h1>
+<p class="sub">Diekspor dari RememberMe.</p>
+<div class="grid">${cards.map(card=>`
+<div class="card" style="--c:${card.color}"><h2>${card.title}</h2>
+${(isFocus?card.items:card.entries).map(it=>`<div class="item">
+${isFocus?`<div class="dot ${it.done?'done':'todo'}"></div><span style="${it.done?'text-decoration:line-through;opacity:.45':''}">${it.text}</span>`
+:`<span>${it.type==='folder'?'📁':'📄'} ${it.name}</span><span class="tag">${it.type}</span>`}</div>${!isFocus?`<div class="path">${it.path}</div>`:''}`).join('')}</div>`).join('')}</div></body></html>`;
+  const blob = new Blob([html],{type:"text/html"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href=url; a.download=`rememberme-${currentTab}.html`; a.click();
+  URL.revokeObjectURL(url);
+  document.getElementById('export-menu').classList.remove('open');
+}
+
+// ── Modal ──
+function openNewFocusModal() {
+  modalType = 'newFocus';
+  modalData = { title: '', color: CARD_COLORS[0], modeId: activeMode, items: [] };
+  renderModal();
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function openEditFocusModal(id) {
+  modalType = 'newFocus';
+  modalData = JSON.parse(JSON.stringify(focusCards.find(c => c.id === id)));
+  renderModal();
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function openNewRememberModal() {
+  modalType = 'newRemember';
+  modalData = { title: '', color: CARD_COLORS[3], modeId: activeMode, entries: [] };
+  renderModal();
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function openEditRememberModal(id) {
+  modalType = 'newRemember';
+  modalData = JSON.parse(JSON.stringify(rememberCards.find(c => c.id === id)));
+  renderModal();
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function openNewModeModal() {
+  modalType = 'newMode';
+  modalData = { label: '', emoji: '💼', color: CARD_COLORS[5] };
+  renderModal();
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  modalType = null;
+}
+function handleOverlayClick(e) {
+  if (e.target === e.currentTarget) closeModal();
+}
+
+function setModalColor(c) {
+  modalData.color = c;
+  document.querySelectorAll('.color-swatch').forEach(sw => sw.classList.toggle('selected', sw.dataset.color === c));
+  if (modalType === 'newMode') {
+    // no extra action
+  }
+}
+function setModalEmoji(em) {
+  modalData.emoji = em;
+  document.querySelectorAll('.emoji-btn').forEach(b => b.classList.toggle('selected', b.dataset.emoji === em));
+}
+function setModalModeId(id) {
+  modalData.modeId = id;
+  renderModal();
+}
+
+function renderModal() {
+  const box = document.getElementById('modal-box');
+  const isMode = modalType === 'newMode';
+  const isFocus = modalType === 'newFocus';
+  box.className = 'modal-box' + (isMode ? ' narrow' : '');
+
+  document.getElementById('modal-title').textContent =
+    isMode ? '🗂 Tambah Mode Baru' :
+    `${modalData.id ? 'Edit' : 'Buat'} Kartu ${isFocus ? 'Fokus' : 'Remember'}`;
+  document.getElementById('modal-save-btn').textContent =
+    isMode ? 'Buat Mode' : (modalData.id ? 'Simpan' : 'Buat Kartu');
+
+  let html = '';
+  if (isMode) {
+    html = `
+      <div class="modal-fields">
+        <div>
+          <label class="field-label">Nama Mode</label>
+          <input class="field-input" id="mode-label-input" value="${modalData.label}" placeholder="Contoh: Freelance, Hobi, Kuliah…" autofocus oninput="modalData.label=this.value">
+        </div>
+        <div>
+          <label class="field-label">Emoji</label>
+          <div class="emoji-picker">${MODE_EMOJIS.map(e=>`<button class="emoji-btn${modalData.emoji===e?' selected':''}" data-emoji="${e}" onclick="setModalEmoji('${e}')">${e}</button>`).join('')}</div>
+        </div>
+        <div>
+          <label class="field-label">Warna Aksen</label>
+          <div class="color-picker">${CARD_COLORS.map(c=>`<div class="color-swatch${modalData.color===c?' selected':''}" data-color="${c}" style="background:${c}" onclick="setModalColor('${c}')"></div>`).join('')}</div>
+        </div>
+      </div>`;
+  } else {
+    html = `
+      <div class="modal-fields">
+        <div>
+          <label class="field-label">Judul Kartu</label>
+          <input class="field-input" id="card-title-input" value="${modalData.title}" placeholder="${isFocus?'Contoh: Upload Stok Microstock':'Contoh: Proyek Q2 2025'}" autofocus oninput="modalData.title=this.value">
+        </div>
+        <div>
+          <label class="field-label">Mode / Workspace</label>
+          <div class="mode-selector">${modes.map(m=>`
+            <button class="mode-sel-btn" onclick="setModalModeId('${m.id}')"
+              style="${modalData.modeId===m.id?`border-color:${m.color};background:${m.color}22;color:${m.color}`:''}"
+            ><span>${m.emoji}</span><span>${m.label}</span></button>`).join('')}
+          </div>
+        </div>
+        <div>
+          <label class="field-label">Warna Kartu</label>
+          <div class="color-picker">${CARD_COLORS.map(c=>`<div class="color-swatch${modalData.color===c?' selected':''}" data-color="${c}" style="background:${c}" onclick="setModalColor('${c}')"></div>`).join('')}</div>
+        </div>
+      </div>`;
+  }
+  document.getElementById('modal-fields').innerHTML = html;
+  setTimeout(() => {
+    const inp = document.getElementById(isMode ? 'mode-label-input' : 'card-title-input');
+    if (inp) inp.focus();
+  }, 50);
+}
+
+function saveModal() {
+  if (modalType === 'newMode') {
+    if (!modalData.label.trim()) return;
+    const id = "mode-" + uid();
+    modes.push({ id, label: modalData.label.trim(), emoji: modalData.emoji, color: modalData.color });
+    activeMode = id;
+    closeModal();
+    renderAll();
+  } else if (modalType === 'newFocus') {
+    if (!modalData.title.trim()) return;
+    if (modalData.id) {
+      focusCards = focusCards.map(c => c.id === modalData.id ? { ...modalData } : c);
+    } else {
+      focusCards.push({ ...modalData, id: uid(), items: [] });
+    }
+    closeModal();
+    renderAll();
+  } else if (modalType === 'newRemember') {
+    if (!modalData.title.trim()) return;
+    if (modalData.id) {
+      rememberCards = rememberCards.map(c => c.id === modalData.id ? { ...modalData } : c);
+    } else {
+      rememberCards.push({ ...modalData, id: uid(), entries: [] });
+    }
+    closeModal();
+    renderAll();
+  }
+}
+
+// ── Render functions ──
+function renderAll() {
+  renderSidebar();
+  renderModeBadge();
+  renderStats();
+  renderContent();
+}
+
+function renderSidebar() {
+  const sb = document.getElementById('sidebar');
+  sb.classList.toggle('collapsed', !sidebarOpen);
+
+  // Modes list
+  const list = document.getElementById('modes-list');
+  let html = '';
+  modes.forEach(mode => {
+    const isActive = mode.id === activeMode;
+    const count = focusCards.filter(c=>c.modeId===mode.id).length + rememberCards.filter(c=>c.modeId===mode.id).length;
+    html += `
+      <div class="mode-item">
+        <button class="mode-btn${isActive?' active':''}" onclick="setActiveMode('${mode.id}')"
+          style="${isActive?`background:${mode.color}22;border-color:${mode.color}44`:''}"
+        >
+          <div class="mode-active-bar" style="background:${mode.color}"></div>
+          <span class="mode-emoji">${mode.emoji}</span>
+          <span class="mode-label-text" style="${isActive?`color:#f1f5f9;font-weight:700`:''}">${mode.label}</span>
+          <span class="mode-count" style="${isActive?`background:${mode.color}33;color:${mode.color}`:''}">${count}</span>
+        </button>
+        ${modes.length > 1 ? `<button class="mode-delete" onclick="deleteMode('${mode.id}',event)">${svgIcon(icons.x, 11)}</button>` : ''}
+      </div>`;
+  });
+  html += `
+    <button class="add-mode-btn" onclick="openNewModeModal()">
+      ${svgIcon(icons.plus, 14)}
+      <span>Tambah Mode</span>
+    </button>`;
+  list.innerHTML = html;
+
+  // Bottom current mode
+  const mode = modes.find(m => m.id === activeMode) || modes[0];
+  document.getElementById('sidebar-current-mode').innerHTML = `
+    <div class="sidebar-mode-avatar" style="background:${mode.color}22;border:1px solid ${mode.color}44">${mode.emoji}</div>
+    <span class="sidebar-mode-name">${mode.label}</span>`;
+}
+
+function renderModeBadge() {
+  const mode = modes.find(m => m.id === activeMode) || modes[0];
+  document.getElementById('mode-badge-wrap').innerHTML = `
+    <div class="mode-badge" style="background:${mode.color}1a;border:1px solid ${mode.color}44">
+      <span class="mode-badge-emoji">${mode.emoji}</span>
+      <span class="mode-badge-label" style="color:${mode.color}">${mode.label}</span>
+    </div>`;
+}
+
+function renderStats() {
+  const vf = focusCards.filter(c => c.modeId === activeMode);
+  const vr = rememberCards.filter(c => c.modeId === activeMode);
+  const totalDone = vf.reduce((a,c) => a + c.items.filter(i=>i.done).length, 0);
+  const totalAll  = vf.reduce((a,c) => a + c.items.length, 0);
+  const totalFiles = vr.reduce((a,c) => a + c.entries.length, 0);
+  const pct = totalAll > 0 ? Math.round(totalDone/totalAll*100) : 0;
+  const mode = modes.find(m => m.id === activeMode) || modes[0];
+
+  let html = `
+    <div class="stat"><span class="stat-icon">🎯</span><div><div class="stat-label">Kartu Fokus</div><div class="stat-value">${vf.length}</div></div></div>
+    <div class="stat"><span class="stat-icon">✅</span><div><div class="stat-label">Task Selesai</div><div class="stat-value" style="color:#22c55e">${totalDone}/${totalAll}</div></div></div>
+    <div class="stat"><span class="stat-icon">🗂</span><div><div class="stat-label">Kartu Remember</div><div class="stat-value">${vr.length}</div></div></div>
+    <div class="stat"><span class="stat-icon">📁</span><div><div class="stat-label">Total File</div><div class="stat-value" style="color:#06b6d4">${totalFiles}</div></div></div>`;
+  if (totalAll > 0) {
+    html += `<div class="progress-wrap">
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" style="background:linear-gradient(90deg,${mode.color},#22c55e);width:${pct}%"></div>
+      </div>
+      <span class="progress-pct">${pct}%</span>
+    </div>`;
+  }
+  document.getElementById('stats-inner').innerHTML = html;
+}
+
+function renderContent() {
+  const mode = modes.find(m => m.id === activeMode) || modes[0];
+  const content = document.getElementById('content');
+  if (currentTab === 'focus') {
+    renderFocusView(content, mode);
+  } else {
+    renderRememberView(content, mode);
+  }
+}
+
+function renderFocusView(container, mode) {
+  const cards = focusCards.filter(c => c.modeId === activeMode);
+  let html = `
+    <div class="section-header">
+      <div>
+        <div class="section-title">🎯 Fokus — ${mode.emoji} ${mode.label}</div>
+        <div class="section-sub">Kartu tugas dengan checklist progres</div>
+      </div>
+      <button class="add-card-btn" onclick="openNewFocusModal()"
+        style="background:linear-gradient(135deg,${mode.color},${mode.color}bb);box-shadow:0 4px 18px ${mode.color}33">
+        ${svgIcon(icons.plus, 14)} + Kartu Baru
+      </button>
+    </div>
+    <div class="cards-grid">`;
+
+  if (cards.length === 0) {
+    html += `<div class="empty-state"><div class="empty-icon">🎯</div><p class="empty-text">Belum ada kartu fokus di mode "${mode.label}". Buat kartu pertama!</p></div>`;
+  } else {
+    cards.forEach(card => { html += renderFocusCard(card); });
+  }
+  html += '</div>';
+  container.innerHTML = html;
+  attachFocusEvents();
+}
+
+function renderFocusCard(card) {
+  const mode = modes.find(m => m.id === card.modeId);
+  const done = card.items.filter(i=>i.done).length;
+  const pct  = card.items.length ? Math.round(done/card.items.length*100) : 0;
+  const isAdding = addingItems[card.id];
+
+  let itemsHTML = card.items.map((item, idx) => `
+    <div class="task-item ${item.done?'done':'todo'}">
+      <span class="task-num">${idx+1}.</span>
+      <button class="task-check ${item.done?'checked':''}" data-card="${card.id}" data-item="${item.id}" onclick="toggleItem('${card.id}','${item.id}')">
+        ${item.done ? svgIcon(icons.check, 11, 3) : ''}
+      </button>
+      <span class="task-text ${item.done?'done':''}">${escHtml(item.text)}</span>
+      <button class="entry-delete" onclick="deleteItem('${card.id}','${item.id}')">${svgIcon(icons.x, 12)}</button>
+    </div>`).join('');
+
+  let addHTML = isAdding
+    ? `<div class="add-item-row">
+        <input class="add-item-input" id="add-item-${card.id}" placeholder="Nama task…" onkeydown="handleAddItemKey(event,'${card.id}')">
+        <button class="add-item-submit" style="background:${card.color}" onclick="submitAddItem('${card.id}')">+</button>
+       </div>`
+    : `<button class="add-task-btn" onclick="startAddItem('${card.id}')" data-card="${card.id}"
+        onmouseover="this.style.borderColor='${card.color}';this.style.color='${card.color}'"
+        onmouseout="this.style.borderColor='';this.style.color=''">+ Tambah Task</button>`;
+
+  return `
+    <div class="card" onmouseover="this.style.boxShadow='0 12px 40px ${card.color}18'" onmouseout="this.style.boxShadow='none'">
+      <div class="card-accent" style="background:${card.color}"></div>
+      <div class="card-body">
+        <div class="card-header">
+          <div class="card-title-wrap">
+            <div class="card-title">${escHtml(card.title)}</div>
+            ${mode ? `<span class="card-mode-badge" style="background:${mode.color}22;color:${mode.color}">${mode.emoji} ${mode.label}</span>` : ''}
+          </div>
+          <div class="card-actions">
+            <button class="icon-btn" onclick="openEditFocusModal('${card.id}')">${svgIcon(icons.edit, 13)}</button>
+            <button class="icon-btn danger" onclick="deleteFocusCard('${card.id}')">${svgIcon(icons.trash, 13)}</button>
+          </div>
+        </div>
+        <div class="card-progress">
+          <div class="progress-track"><div class="progress-fill" style="background:${card.color};width:${pct}%"></div></div>
+          <span class="progress-count">${done}/${card.items.length}</span>
+        </div>
+        <div class="items-list">${itemsHTML}</div>
+        <div class="add-item-wrap">${addHTML}</div>
+      </div>
+    </div>`;
+}
+
+function attachFocusEvents() {
+  // auto-focus any open add input
+  Object.keys(addingItems).forEach(cardId => {
+    if (addingItems[cardId]) {
+      const inp = document.getElementById(`add-item-${cardId}`);
+      if (inp) inp.focus();
+    }
+  });
+}
+
+function startAddItem(cardId) {
+  addingItems[cardId] = true;
+  renderContent();
+}
+function submitAddItem(cardId) {
+  const inp = document.getElementById(`add-item-${cardId}`);
+  if (inp) addItem(cardId, inp.value);
+}
+function handleAddItemKey(e, cardId) {
+  if (e.key === 'Enter') submitAddItem(cardId);
+  if (e.key === 'Escape') { addingItems[cardId] = false; renderContent(); }
+}
+
+function renderRememberView(container, mode) {
+  const cards = rememberCards.filter(c => c.modeId === activeMode);
+  let html = `
+    <div class="section-header">
+      <div>
+        <div class="section-title">🗂 Remember — ${mode.emoji} ${mode.label}</div>
+        <div class="section-sub">Catat lokasi file & folder agar mudah ditemukan</div>
+      </div>
+      <button class="add-card-btn" onclick="openNewRememberModal()"
+        style="background:linear-gradient(135deg,${mode.color},${mode.color}bb);box-shadow:0 4px 18px ${mode.color}33">
+        ${svgIcon(icons.plus, 14)} + Kartu Baru
+      </button>
+    </div>
+    <div class="cards-grid remember">`;
+
+  if (cards.length === 0) {
+    html += `<div class="empty-state"><div class="empty-icon">🗂</div><p class="empty-text">Belum ada kartu remember di mode "${mode.label}". Mulai catat file-mu!</p></div>`;
+  } else {
+    cards.forEach(card => { html += renderRememberCard(card); });
+  }
+  html += '</div>';
+  container.innerHTML = html;
+  attachRememberEvents();
+}
+
+function renderRememberCard(card) {
+  const mode = modes.find(m => m.id === card.modeId);
+  const isAdding = addingEntries[card.id];
+  const entryFormId = `entry-form-${card.id}`;
+  const entryNameId = `entry-name-${card.id}`;
+  const entryPathId = `entry-path-${card.id}`;
+  const entryTypeFile = `entry-type-file-${card.id}`;
+  const entryTypeFolder = `entry-type-folder-${card.id}`;
+
+  let entriesHTML = card.entries.map(entry => `
+    <div class="entry-item">
+      <div class="entry-row">
+        <span class="entry-icon-wrap">${entry.type==='folder'?'📁':'📄'}</span>
+        <div class="entry-info">
+          <div class="entry-name">${escHtml(entry.name)}</div>
+          <div class="entry-path">${escHtml(entry.path)}</div>
+        </div>
+        <span class="entry-type-badge" style="${entry.type==='folder'?'background:#0c1f0c;color:#22c55e':'background:#0c1a28;color:#06b6d4'}">${entry.type}</span>
+        <button class="entry-delete" onclick="deleteEntry('${card.id}','${entry.id}')">${svgIcon(icons.x, 12)}</button>
+      </div>
+    </div>`).join('');
+
+  let addHTML = '';
+  if (isAdding) {
+    const form = addingEntries[card.id];
+    const isFolder = form.type === 'folder';
+    addHTML = `
+      <div class="add-entry-form" id="${entryFormId}">
+        <input class="add-entry-input" id="${entryNameId}" value="${escHtml(form.name||'')}" placeholder="Nama file/folder" oninput="updateEntryForm('${card.id}','name',this.value)">
+        <input class="add-entry-input mono" id="${entryPathId}" value="${escHtml(form.path||'')}" placeholder="Path: D:/Proyek/file.pdf" oninput="updateEntryForm('${card.id}','path',this.value)">
+        <div class="type-btns">
+          <button class="type-btn" onclick="updateEntryForm('${card.id}','type','file')"
+            style="${!isFolder?`border-color:${card.color};background:${card.color}22;color:${card.color}`:''}">📄 File</button>
+          <button class="type-btn" onclick="updateEntryForm('${card.id}','type','folder')"
+            style="${isFolder?`border-color:${card.color};background:${card.color}22;color:${card.color}`:''}">📁 Folder</button>
+        </div>
+        <div class="entry-form-btns">
+          <button class="entry-save-btn" style="background:${card.color}" onclick="submitAddEntry('${card.id}')">Simpan</button>
+          <button class="entry-cancel-btn" onclick="cancelAddEntry('${card.id}')">Batal</button>
+        </div>
+      </div>`;
+  } else {
+    addHTML = `<button class="add-entry-btn" onclick="startAddEntry('${card.id}')"
+      onmouseover="this.style.borderColor='${card.color}';this.style.color='${card.color}'"
+      onmouseout="this.style.borderColor='';this.style.color=''">+ Tambah Entri</button>`;
+  }
+
+  return `
+    <div class="card" onmouseover="this.style.boxShadow='0 12px 40px ${card.color}18'" onmouseout="this.style.boxShadow='none'">
+      <div class="card-accent" style="background:${card.color}"></div>
+      <div class="card-body">
+        <div class="card-header">
+          <div class="card-title-wrap">
+            <div class="card-title">${escHtml(card.title)}</div>
+            ${mode ? `<span class="card-mode-badge" style="background:${mode.color}22;color:${mode.color}">${mode.emoji} ${mode.label}</span>` : ''}
+          </div>
+          <div class="card-actions">
+            <button class="icon-btn" onclick="openEditRememberModal('${card.id}')">${svgIcon(icons.edit, 13)}</button>
+            <button class="icon-btn danger" onclick="deleteRemCard('${card.id}')">${svgIcon(icons.trash, 13)}</button>
+          </div>
+        </div>
+        <div class="entries-list">${entriesHTML}</div>
+        ${addHTML}
+      </div>
+    </div>`;
+}
+
+function attachRememberEvents() {
+  Object.keys(addingEntries).forEach(cardId => {
+    if (addingEntries[cardId]) {
+      const inp = document.getElementById(`entry-name-${cardId}`);
+      if (inp) inp.focus();
+    }
+  });
+}
+
+function startAddEntry(cardId) {
+  addingEntries[cardId] = { name: '', path: '', type: 'file' };
+  renderContent();
+}
+function updateEntryForm(cardId, field, val) {
+  if (addingEntries[cardId]) {
+    addingEntries[cardId][field] = val;
+    if (field === 'type') renderContent();
+  }
+}
+function submitAddEntry(cardId) {
+  const f = addingEntries[cardId];
+  const nameInp = document.getElementById(`entry-name-${cardId}`);
+  const pathInp = document.getElementById(`entry-path-${cardId}`);
+  if (nameInp) f.name = nameInp.value;
+  if (pathInp) f.path = pathInp.value;
+  if (f && f.name && f.path) {
+    addEntry(cardId, { ...f });
+  }
+}
+function cancelAddEntry(cardId) {
+  delete addingEntries[cardId];
+  renderContent();
+}
+
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Init ──
+renderAll();
+
+// ── PWA: Service Worker ──
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+// ── PWA: Install Prompt ──
+let deferredPrompt = null;
+const installBanner = document.getElementById('install-banner');
+const installBtn = document.getElementById('install-btn');
+const installDismiss = document.getElementById('install-dismiss');
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  if (installBanner) installBanner.style.display = 'flex';
+});
+
+if (installBtn) {
+  installBtn.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    if (installBanner) installBanner.style.display = 'none';
+  });
+}
+if (installDismiss) {
+  installDismiss.addEventListener('click', () => {
+    if (installBanner) installBanner.style.display = 'none';
+  });
+}
+window.addEventListener('appinstalled', () => {
+  if (installBanner) installBanner.style.display = 'none';
+});
+
+const origToggleTheme = window.toggleTheme;
+window.toggleTheme = function() {
+  origToggleTheme();
+  const isDark = document.documentElement.dataset.theme === 'dark';
+  const mc = document.getElementById('meta-theme-color');
+  if (mc) mc.setAttribute('content', isDark ? '#0a0a10' : '#f0f4f8');
+};
+</script>
+
+<!-- PWA Install Banner -->
+<div id="install-banner" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:999;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:16px;padding:14px 20px;align-items:center;gap:14px;box-shadow:0 8px 32px rgba(99,102,241,0.4);max-width:340px;width:calc(100% - 40px);">
+  <span style="font-size:28px">📲</span>
+  <div style="flex:1">
+    <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:14px;color:#fff">Install RememberMe</div>
+    <div style="font-family:'Poppins',sans-serif;font-size:11px;color:rgba(255,255,255,0.75);margin-top:2px">Tambah ke layar utama HP-mu</div>
+  </div>
+  <button id="install-btn" style="padding:8px 16px;background:#fff;border:none;border-radius:10px;font-family:'Poppins',sans-serif;font-weight:700;font-size:12px;color:#6366f1;cursor:pointer;">Install</button>
+  <button id="install-dismiss" style="background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;font-size:18px;padding:0;line-height:1;">×</button>
+</div>
+</body>
+</html>
